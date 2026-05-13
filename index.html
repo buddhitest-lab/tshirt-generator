@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>T-Shirt Generator</title>
 
   <style>
@@ -15,90 +17,37 @@
     }
 
     body {
+      margin: 0;
+      padding: 30px;
+      background: #f2f2f2;
       font-family: Arial, sans-serif;
       text-align: center;
-      padding: 20px;
-      background: #f2f2f2;
-    }
-
-    h1 {
-      margin-bottom: 20px;
     }
 
     input {
-      padding: 10px;
+      width: 240px;
+      padding: 12px;
       margin: 10px;
       font-size: 18px;
-      width: 220px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
 
     button {
-      padding: 12px 24px;
+      padding: 14px 28px;
       font-size: 18px;
-      cursor: pointer;
       background: black;
       color: white;
       border: none;
-      border-radius: 6px;
-      margin-top: 15px;
-    }
-
-    .preview-area {
-      width: 100%;
-      overflow: hidden;
-      margin-top: 20px;
-    }
-
-    .preview-scale {
-      width: 1800px;
-      height: 2200px;
-      transform: scale(0.25);
-      transform-origin: top center;
-      margin: 0 auto;
-    }
-
-    .design {
-      width: 1800px;
-      height: 2200px;
-      position: relative;
-      background: transparent;
-      overflow: hidden;
-    }
-
-    .name {
-      position: absolute;
-      top: 180px;
-      left: 0;
-      width: 100%;
-      text-align: center;
-      font-family: "High School USA Sans", Arial, sans-serif;
-      font-size: 90pt;
-      color: #C8A24A;
-      background: transparent;
-      line-height: 1;
-      letter-spacing: 6px;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .number {
-      position: absolute;
-      top: 430px;
-      left: 0;
-      width: 100%;
-      text-align: center;
-      font-family: "SF Collegiate", Arial, sans-serif;
-      font-size: 330pt;
-      color: #C8A24A;
-      background: transparent;
-      line-height: 0.85;
-      white-space: nowrap;
-    }
-
-    .note {
-      font-size: 14px;
-      color: #555;
+      border-radius: 8px;
+      cursor: pointer;
       margin-top: 10px;
+    }
+
+    canvas {
+      margin-top: 25px;
+      max-width: 90%;
+      background: transparent;
     }
   </style>
 </head>
@@ -107,91 +56,101 @@
 
   <h1>Create Your Shirt Print</h1>
 
-  <input
-    type="text"
-    id="playerName"
-    placeholder="Player Name"
-    maxlength="12"
-  >
+  <input id="playerName" type="text" placeholder="Player Name" maxlength="12" />
+  <input id="playerNumber" type="text" placeholder="Number" maxlength="2" />
 
-  <input
-    type="text"
-    id="playerNumber"
-    placeholder="Number"
-    maxlength="2"
-  >
-
-  <br>
+  <br />
 
   <button onclick="downloadPNG()">Download High Resolution PNG</button>
 
-  <p class="note">PNG export uses transparent background and keeps file size under 15MB where possible.</p>
+  <br />
 
-  <div class="preview-area">
-    <div class="preview-scale">
-      <div class="design" id="design">
-        <div class="name" id="namePreview">BUDDHI</div>
-        <div class="number" id="numberPreview">09</div>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <canvas id="previewCanvas" width="3000" height="2200"></canvas>
 
   <script>
+    const canvas = document.getElementById("previewCanvas");
+    const ctx = canvas.getContext("2d");
+
     const nameInput = document.getElementById("playerName");
     const numberInput = document.getElementById("playerNumber");
-    const namePreview = document.getElementById("namePreview");
-    const numberPreview = document.getElementById("numberPreview");
 
-    nameInput.addEventListener("input", () => {
-      namePreview.innerText = (nameInput.value || "BUDDHI").toUpperCase();
-    });
+    const GOLD = "#C8A24A";
 
-    numberInput.addEventListener("input", () => {
-      numberPreview.innerText = numberInput.value || "09";
-    });
-
-    async function downloadPNG() {
-      const design = document.getElementById("design");
-
+    async function loadFonts() {
+      await document.fonts.load("90pt 'High School USA Sans'");
+      await document.fonts.load("330pt 'SF Collegiate'");
       await document.fonts.ready;
+    }
 
-      let canvas = await html2canvas(design, {
-        backgroundColor: null,
-        scale: 2,
-        useCORS: true
-      });
+    function drawCenteredText(text, font, y, maxWidth) {
+      ctx.font = font;
+      ctx.fillStyle = GOLD;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
 
-      let pngData = canvas.toDataURL("image/png");
-      let fileSizeMB = pngData.length * 0.75 / 1024 / 1024;
+      let size = parseInt(font);
+      let family = font.substring(font.indexOf(" ") + 1);
 
-      if (fileSizeMB > 15) {
-        canvas = await html2canvas(design, {
-          backgroundColor: null,
-          scale: 1.5,
-          useCORS: true
-        });
-
-        pngData = canvas.toDataURL("image/png");
-        fileSizeMB = pngData.length * 0.75 / 1024 / 1024;
+      while (ctx.measureText(text).width > maxWidth && size > 20) {
+        size -= 5;
+        ctx.font = size + "pt " + family;
       }
 
-      if (fileSizeMB > 15) {
-        canvas = await html2canvas(design, {
-          backgroundColor: null,
-          scale: 1,
-          useCORS: true
-        });
+      ctx.fillText(text, canvas.width / 2, y);
+    }
 
-        pngData = canvas.toDataURL("image/png");
+    async function drawDesign() {
+      await loadFonts();
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const name = (nameInput.value || "BUDDHI").toUpperCase();
+      const number = numberInput.value || "09";
+
+      drawCenteredText(
+        name,
+        "90pt 'High School USA Sans'",
+        180,
+        2700
+      );
+
+      drawCenteredText(
+        number,
+        "330pt 'SF Collegiate'",
+        430,
+        2700
+      );
+    }
+
+    nameInput.addEventListener("input", drawDesign);
+    numberInput.addEventListener("input", drawDesign);
+
+    async function downloadPNG() {
+      await drawDesign();
+
+      let dataUrl = canvas.toDataURL("image/png");
+      let sizeMB = dataUrl.length * 0.75 / 1024 / 1024;
+
+      if (sizeMB > 15) {
+        alert("File is over 15MB. Downloading optimized version.");
+
+        const smallCanvas = document.createElement("canvas");
+        smallCanvas.width = 2400;
+        smallCanvas.height = 1760;
+
+        const smallCtx = smallCanvas.getContext("2d");
+        smallCtx.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
+
+        dataUrl = smallCanvas.toDataURL("image/png");
       }
 
       const link = document.createElement("a");
       link.download = "tshirt-print.png";
-      link.href = pngData;
+      link.href = dataUrl;
       link.click();
     }
+
+    drawDesign();
   </script>
 
 </body>
