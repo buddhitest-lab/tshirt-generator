@@ -4,40 +4,25 @@
   <title>T-Shirt Generator</title>
 
   <style>
+    @font-face {
+      font-family: "SF Collegiate";
+      src: url("fonts/SfCollegiate-K0Xe.ttf") format("truetype");
+    }
+
+    @font-face {
+      font-family: "High School USA Sans";
+      src: url("fonts/HighSchoolUsaSans-52vx.ttf") format("truetype");
+    }
+
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
       background: #f2f2f2;
     }
 
-    .shirt {
-      width: 500px;
-      height: 600px;
-      margin: 20px auto;
-      background: white;
-      border: 2px solid black;
-      position: relative;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-    }
-
-    .name {
-      position: absolute;
-      top: 120px;
-      width: 100%;
-      text-align: center;
-      font-size: 48px;
-      font-weight: bold;
-      letter-spacing: 4px;
-    }
-
-    .number {
-      position: absolute;
-      top: 250px;
-      width: 100%;
-      text-align: center;
-      font-size: 180px;
-      font-weight: bold;
+    h1 {
+      margin-bottom: 20px;
     }
 
     input {
@@ -55,16 +40,72 @@
       color: white;
       border: none;
       border-radius: 6px;
+      margin-top: 15px;
     }
 
-    button:hover {
-      opacity: 0.9;
+    .preview-area {
+      width: 100%;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    .preview-scale {
+      width: 1800px;
+      height: 2200px;
+      transform: scale(0.25);
+      transform-origin: top center;
+      margin: 0 auto;
+    }
+
+    .design {
+      width: 1800px;
+      height: 2200px;
+      position: relative;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    .name {
+      position: absolute;
+      top: 180px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-family: "High School USA Sans", Arial, sans-serif;
+      font-size: 90pt;
+      color: #C8A24A;
+      background: transparent;
+      line-height: 1;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .number {
+      position: absolute;
+      top: 430px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-family: "SF Collegiate", Arial, sans-serif;
+      font-size: 330pt;
+      color: #C8A24A;
+      background: transparent;
+      line-height: 0.85;
+      white-space: nowrap;
+    }
+
+    .note {
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
     }
   </style>
 </head>
+
 <body>
 
-  <h1>Create Your Shirt</h1>
+  <h1>Create Your Shirt Print</h1>
 
   <input
     type="text"
@@ -80,51 +121,76 @@
     maxlength="2"
   >
 
-  <div class="shirt" id="shirt">
-    <div class="name" id="namePreview">BUDDHI</div>
-    <div class="number" id="numberPreview">09</div>
+  <br>
+
+  <button onclick="downloadPNG()">Download High Resolution PNG</button>
+
+  <p class="note">PNG export uses transparent background and keeps file size under 15MB where possible.</p>
+
+  <div class="preview-area">
+    <div class="preview-scale">
+      <div class="design" id="design">
+        <div class="name" id="namePreview">BUDDHI</div>
+        <div class="number" id="numberPreview">09</div>
+      </div>
+    </div>
   </div>
 
-  <button onclick="downloadPDF()">
-    Download PDF
-  </button>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script>
     const nameInput = document.getElementById("playerName");
     const numberInput = document.getElementById("playerNumber");
+    const namePreview = document.getElementById("namePreview");
+    const numberPreview = document.getElementById("numberPreview");
 
     nameInput.addEventListener("input", () => {
-      document.getElementById("namePreview").innerText =
-        nameInput.value || "BUDDHI";
+      namePreview.innerText = (nameInput.value || "BUDDHI").toUpperCase();
     });
 
     numberInput.addEventListener("input", () => {
-      document.getElementById("numberPreview").innerText =
-        numberInput.value || "09";
+      numberPreview.innerText = numberInput.value || "09";
     });
 
-    async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
+    async function downloadPNG() {
+      const design = document.getElementById("design");
 
-      const shirt = document.getElementById("shirt");
+      await document.fonts.ready;
 
-      const canvas = await html2canvas(shirt);
-
-      const imgData = canvas.toDataURL("image/png");
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "px",
-        format: [500, 600]
+      let canvas = await html2canvas(design, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true
       });
 
-      pdf.addImage(imgData, "PNG", 0, 0, 500, 600);
+      let pngData = canvas.toDataURL("image/png");
+      let fileSizeMB = pngData.length * 0.75 / 1024 / 1024;
 
-      pdf.save("tshirt-design.pdf");
+      if (fileSizeMB > 15) {
+        canvas = await html2canvas(design, {
+          backgroundColor: null,
+          scale: 1.5,
+          useCORS: true
+        });
+
+        pngData = canvas.toDataURL("image/png");
+        fileSizeMB = pngData.length * 0.75 / 1024 / 1024;
+      }
+
+      if (fileSizeMB > 15) {
+        canvas = await html2canvas(design, {
+          backgroundColor: null,
+          scale: 1,
+          useCORS: true
+        });
+
+        pngData = canvas.toDataURL("image/png");
+      }
+
+      const link = document.createElement("a");
+      link.download = "tshirt-print.png";
+      link.href = pngData;
+      link.click();
     }
   </script>
 
