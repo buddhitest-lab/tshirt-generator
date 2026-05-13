@@ -8,12 +8,16 @@
   <style>
     @font-face {
       font-family: "SF Collegiate";
-      src: url("fonts/SfCollegiate-K0Xe.ttf") format("truetype");
+      src: url("fonts/SfCollegiate-K0Xe.ttf?v=4") format("truetype");
+      font-weight: normal;
+      font-style: normal;
     }
 
     @font-face {
       font-family: "High School USA Sans";
-      src: url("fonts/HighSchoolUsaSans-52vx.ttf") format("truetype");
+      src: url("fonts/HighSchoolUsaSans-52vx.ttf?v=4") format("truetype");
+      font-weight: normal;
+      font-style: normal;
     }
 
     body {
@@ -29,8 +33,15 @@
       padding: 12px;
       margin: 10px;
       font-size: 18px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+      margin-right: 8px;
+    }
+
+    label {
+      font-size: 18px;
     }
 
     button {
@@ -41,11 +52,11 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 18px;
     }
 
     .preview-box {
-      margin: 30px auto 0;
+      margin: 30px auto;
       width: 720px;
       max-width: 95%;
       background: black;
@@ -54,9 +65,8 @@
 
     canvas {
       width: 100%;
-      height: auto;
-      background: transparent;
       display: block;
+      background: transparent;
     }
   </style>
 </head>
@@ -66,7 +76,15 @@
   <h1>Create Your Shirt Print</h1>
 
   <input id="playerName" type="text" placeholder="Player Name" maxlength="12" />
+
   <input id="playerNumber" type="text" placeholder="Number" maxlength="2" />
+
+  <br />
+
+  <label>
+    <input type="checkbox" id="isCricketer" />
+    I am a cricketer of the Jyväskylä Titans Crickert team
+  </label>
 
   <br />
 
@@ -82,31 +100,39 @@
 
     const nameInput = document.getElementById("playerName");
     const numberInput = document.getElementById("playerNumber");
+    const isCricketerInput = document.getElementById("isCricketer");
 
     const GOLD = "#C8A24A";
 
     async function loadFonts() {
-      await document.fonts.load('1000px "High School USA Sans"');
+      await document.fonts.load('900px "SF Collegiate"');
       await document.fonts.load('2300px "SF Collegiate"');
       await document.fonts.ready;
     }
 
-    function drawCenteredText(text, fontFamily, fontSize, y, maxWidth) {
-      ctx.font = `${fontSize}px "${fontFamily}"`;
+    function drawText(text, size, y, maxWidth) {
+      ctx.font = `${size}px "SF Collegiate"`;
       ctx.fillStyle = GOLD;
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
 
-      let size = fontSize;
-      let metrics = ctx.measureText(text);
-
-      while (metrics.width > maxWidth && size > 100) {
+      while (ctx.measureText(text).width > maxWidth && size > 100) {
         size -= 20;
-        ctx.font = `${size}px "${fontFamily}"`;
-        metrics = ctx.measureText(text);
+        ctx.font = `${size}px "SF Collegiate"`;
       }
 
       ctx.fillText(text, canvas.width / 2, y);
+    }
+
+    function updateNumberLock() {
+      if (isCricketerInput.checked) {
+        numberInput.disabled = false;
+      } else {
+        numberInput.value = "00";
+        numberInput.disabled = true;
+      }
+
+      drawDesign();
     }
 
     async function drawDesign() {
@@ -115,40 +141,29 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const name = (nameInput.value || "DAN").toUpperCase();
-      const number = numberInput.value || "00";
 
-      drawCenteredText(
-        name,
-        "High School USA Sans",
-        1000,
-        650,
-        9000
-      );
+      const number = isCricketerInput.checked
+        ? (numberInput.value || "00")
+        : "00";
 
-      drawCenteredText(
-        number,
-        "SF Collegiate",
-        2300,
-        2300,
-        9000
-      );
+      drawText(name, 900, 650, 8500);
+      drawText(number, 2300, 2300, 8500);
     }
 
     nameInput.addEventListener("input", drawDesign);
     numberInput.addEventListener("input", drawDesign);
+    isCricketerInput.addEventListener("change", updateNumberLock);
 
     async function downloadPNG() {
       await drawDesign();
 
-      const pngData = canvas.toDataURL("image/png");
-
       const link = document.createElement("a");
-      link.download = "tshirt-print-ultrahd-transparent.png";
-      link.href = pngData;
+      link.download = "t-shirt-back-image.png";
+      link.href = canvas.toDataURL("image/png");
       link.click();
     }
 
-    drawDesign();
+    updateNumberLock();
   </script>
 
 </body>
