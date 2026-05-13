@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>T-Shirt Generator</title>
 
   <style>
@@ -23,10 +22,6 @@
       background: #f2f2f2;
       font-family: Arial, sans-serif;
       text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 25px;
     }
 
     input {
@@ -49,11 +44,19 @@
       margin-top: 10px;
     }
 
+    .preview-box {
+      margin: 30px auto 0;
+      width: 720px;
+      max-width: 95%;
+      background: black;
+      padding: 20px;
+    }
+
     canvas {
-      margin-top: 30px;
-      width: 500px;
-      max-width: 90%;
+      width: 100%;
+      height: auto;
       background: transparent;
+      display: block;
     }
   </style>
 </head>
@@ -62,29 +65,16 @@
 
   <h1>Create Your Shirt Print</h1>
 
-  <input
-    id="playerName"
-    type="text"
-    placeholder="Player Name"
-    maxlength="12"
-  />
-
-  <input
-    id="playerNumber"
-    type="text"
-    placeholder="Number"
-    maxlength="2"
-  />
+  <input id="playerName" type="text" placeholder="Player Name" maxlength="12" />
+  <input id="playerNumber" type="text" placeholder="Number" maxlength="2" />
 
   <br />
 
-  <button onclick="downloadPNG()">
-    Download Ultra HD PNG
-  </button>
+  <button onclick="downloadPNG()">Download Ultra HD Transparent PNG</button>
 
-  <br />
-
-  <canvas id="previewCanvas" width="12000" height="12000"></canvas>
+  <div class="preview-box">
+    <canvas id="previewCanvas" width="12000" height="9000"></canvas>
+  </div>
 
   <script>
     const canvas = document.getElementById("previewCanvas");
@@ -96,53 +86,51 @@
     const GOLD = "#C8A24A";
 
     async function loadFonts() {
-      await document.fonts.load('700 520px "High School USA Sans"');
-      await document.fonts.load('700 1900px "SF Collegiate"');
+      await document.fonts.load('1000px "High School USA Sans"');
+      await document.fonts.load('2300px "SF Collegiate"');
       await document.fonts.ready;
     }
 
-    function drawCenteredText(text, font, y) {
-
-      ctx.font = font;
+    function drawCenteredText(text, fontFamily, fontSize, y, maxWidth) {
+      ctx.font = `${fontSize}px "${fontFamily}"`;
       ctx.fillStyle = GOLD;
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
 
-      const metrics = ctx.measureText(text);
+      let size = fontSize;
+      let metrics = ctx.measureText(text);
 
-      const realWidth =
-        metrics.actualBoundingBoxLeft +
-        metrics.actualBoundingBoxRight;
+      while (metrics.width > maxWidth && size > 100) {
+        size -= 20;
+        ctx.font = `${size}px "${fontFamily}"`;
+        metrics = ctx.measureText(text);
+      }
 
-      const x =
-        (canvas.width / 2) +
-        (metrics.actualBoundingBoxLeft / 2);
-
-      ctx.fillText(text, x, y);
+      ctx.fillText(text, canvas.width / 2, y);
     }
 
     async function drawDesign() {
-
       await loadFonts();
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const name =
-        (nameInput.value || "DAN").toUpperCase();
-
-      const number =
-        numberInput.value || "00";
+      const name = (nameInput.value || "DAN").toUpperCase();
+      const number = numberInput.value || "00";
 
       drawCenteredText(
         name,
-        '700 520px "High School USA Sans"',
-        1200
+        "High School USA Sans",
+        1000,
+        650,
+        9000
       );
 
       drawCenteredText(
         number,
-        '700 1900px "SF Collegiate"',
-        2400
+        "SF Collegiate",
+        2300,
+        2300,
+        9000
       );
     }
 
@@ -150,21 +138,13 @@
     numberInput.addEventListener("input", drawDesign);
 
     async function downloadPNG() {
-
       await drawDesign();
 
-      const pngData =
-        canvas.toDataURL("image/png");
+      const pngData = canvas.toDataURL("image/png");
 
-      const link =
-        document.createElement("a");
-
-      link.download =
-        "tshirt-print-ultrahd.png";
-
-      link.href =
-        pngData;
-
+      const link = document.createElement("a");
+      link.download = "tshirt-print-ultrahd-transparent.png";
+      link.href = pngData;
       link.click();
     }
 
