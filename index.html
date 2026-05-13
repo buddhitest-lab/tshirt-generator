@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>T-Shirt Generator</title>
 
   <style>
@@ -22,6 +23,10 @@
       background: #f2f2f2;
       font-family: Arial, sans-serif;
       text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 25px;
     }
 
     input {
@@ -45,7 +50,8 @@
     }
 
     canvas {
-      margin-top: 25px;
+      margin-top: 30px;
+      width: 500px;
       max-width: 90%;
       background: transparent;
     }
@@ -56,16 +62,29 @@
 
   <h1>Create Your Shirt Print</h1>
 
-  <input id="playerName" type="text" placeholder="Player Name" maxlength="12" />
-  <input id="playerNumber" type="text" placeholder="Number" maxlength="2" />
+  <input
+    id="playerName"
+    type="text"
+    placeholder="Player Name"
+    maxlength="12"
+  />
+
+  <input
+    id="playerNumber"
+    type="text"
+    placeholder="Number"
+    maxlength="2"
+  />
 
   <br />
 
-  <button onclick="downloadPNG()">Download High Resolution PNG</button>
+  <button onclick="downloadPNG()">
+    Download Ultra HD PNG
+  </button>
 
   <br />
 
-  <canvas id="previewCanvas" width="5000" height="3000"></canvas>
+  <canvas id="previewCanvas" width="12000" height="12000"></canvas>
 
   <script>
     const canvas = document.getElementById("previewCanvas");
@@ -76,67 +95,54 @@
 
     const GOLD = "#C8A24A";
 
-    const PT_TO_PX = 96 / 72;
-
-    const nameSizePx = 90 * PT_TO_PX;
-    const numberSizePx = 330 * PT_TO_PX;
-
     async function loadFonts() {
-      await document.fonts.load(`${nameSizePx}px "High School USA Sans"`);
-      await document.fonts.load(`${numberSizePx}px "SF Collegiate"`);
+      await document.fonts.load('700 520px "High School USA Sans"');
+      await document.fonts.load('700 1900px "SF Collegiate"');
       await document.fonts.ready;
     }
 
-    function drawAccurateText(text, fontFamily, fontSizePx, topY, maxWidth) {
-      ctx.font = `${fontSizePx}px "${fontFamily}"`;
+    function drawCenteredText(text, font, y) {
+
+      ctx.font = font;
       ctx.fillStyle = GOLD;
-      ctx.textAlign = "left";
-      ctx.textBaseline = "alphabetic";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
 
-      let size = fontSizePx;
-      let metrics = ctx.measureText(text);
-      let actualWidth =
-        metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
+      const metrics = ctx.measureText(text);
 
-      while (actualWidth > maxWidth && size > 40) {
-        size -= 5;
-        ctx.font = `${size}px "${fontFamily}"`;
-        metrics = ctx.measureText(text);
-        actualWidth =
-          metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
-      }
+      const realWidth =
+        metrics.actualBoundingBoxLeft +
+        metrics.actualBoundingBoxRight;
 
       const x =
-        (canvas.width - actualWidth) / 2 + metrics.actualBoundingBoxLeft;
+        (canvas.width / 2) +
+        (metrics.actualBoundingBoxLeft / 2);
 
-      const baselineY =
-        topY + metrics.actualBoundingBoxAscent;
-
-      ctx.fillText(text, x, baselineY);
+      ctx.fillText(text, x, y);
     }
 
     async function drawDesign() {
+
       await loadFonts();
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const name = (nameInput.value || "BUDDHI").toUpperCase();
-      const number = numberInput.value || "09";
+      const name =
+        (nameInput.value || "DAN").toUpperCase();
 
-      drawAccurateText(
+      const number =
+        numberInput.value || "00";
+
+      drawCenteredText(
         name,
-        "High School USA Sans",
-        nameSizePx,
-        250,
-        4200
+        '700 520px "High School USA Sans"',
+        1200
       );
 
-      drawAccurateText(
+      drawCenteredText(
         number,
-        "SF Collegiate",
-        numberSizePx,
-        520,
-        4200
+        '700 1900px "SF Collegiate"',
+        2400
       );
     }
 
@@ -144,25 +150,21 @@
     numberInput.addEventListener("input", drawDesign);
 
     async function downloadPNG() {
+
       await drawDesign();
 
-      let dataUrl = canvas.toDataURL("image/png");
-      let sizeMB = dataUrl.length * 0.75 / 1024 / 1024;
+      const pngData =
+        canvas.toDataURL("image/png");
 
-      if (sizeMB > 15) {
-        const smallerCanvas = document.createElement("canvas");
-        smallerCanvas.width = 3500;
-        smallerCanvas.height = 2100;
+      const link =
+        document.createElement("a");
 
-        const smallerCtx = smallerCanvas.getContext("2d");
-        smallerCtx.drawImage(canvas, 0, 0, smallerCanvas.width, smallerCanvas.height);
+      link.download =
+        "tshirt-print-ultrahd.png";
 
-        dataUrl = smallerCanvas.toDataURL("image/png");
-      }
+      link.href =
+        pngData;
 
-      const link = document.createElement("a");
-      link.download = "tshirt-print.png";
-      link.href = dataUrl;
       link.click();
     }
 
