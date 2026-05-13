@@ -8,14 +8,14 @@
   <style>
     @font-face {
       font-family: "SF Collegiate";
-      src: url("fonts/SfCollegiate-K0Xe.ttf?v=4") format("truetype");
+      src: url("fonts/SfCollegiate-K0Xe.ttf?v=5") format("truetype");
       font-weight: normal;
       font-style: normal;
     }
 
     @font-face {
       font-family: "High School USA Sans";
-      src: url("fonts/HighSchoolUsaSans-52vx.ttf?v=4") format("truetype");
+      src: url("fonts/HighSchoolUsaSans-52vx.ttf?v=5") format("truetype");
       font-weight: normal;
       font-style: normal;
     }
@@ -28,11 +28,17 @@
       text-align: center;
     }
 
-    input {
+    h1 {
+      margin-bottom: 25px;
+    }
+
+    input[type="text"] {
       width: 240px;
       padding: 12px;
       margin: 10px;
       font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
     }
 
     input[type="checkbox"] {
@@ -41,7 +47,7 @@
     }
 
     label {
-      font-size: 18px;
+      font-size: 16px;
     }
 
     button {
@@ -75,26 +81,39 @@
 
   <h1>Create Your Shirt Print</h1>
 
-  <input id="playerName" type="text" placeholder="Player Name" maxlength="12" />
+  <input
+    id="playerName"
+    type="text"
+    placeholder="Player Name"
+    maxlength="12"
+  />
 
-  <input id="playerNumber" type="text" placeholder="Number" maxlength="2" />
+  <input
+    id="playerNumber"
+    type="text"
+    placeholder="Number"
+    maxlength="2"
+  />
 
   <br />
 
   <label>
     <input type="checkbox" id="isCricketer" />
-    I am a cricketer of the Jyväskylä Titans Crickert team
+    I am a cricketer of the Jyväskylä Titans Cricket team
   </label>
 
   <br />
 
-  <button onclick="downloadPNG()">Download Ultra HD Transparent PNG</button>
+  <button onclick="downloadPNG()">
+    Download Ultra HD Transparent PNG
+  </button>
 
   <div class="preview-box">
     <canvas id="previewCanvas" width="12000" height="9000"></canvas>
   </div>
 
   <script>
+
     const canvas = document.getElementById("previewCanvas");
     const ctx = canvas.getContext("2d");
 
@@ -105,30 +124,57 @@
     const GOLD = "#C8A24A";
 
     async function loadFonts() {
-      await document.fonts.load('900px "SF Collegiate"');
+
+      await document.fonts.load('1000px "High School USA Sans"');
+
       await document.fonts.load('2300px "SF Collegiate"');
+
       await document.fonts.ready;
     }
 
-    function drawText(text, size, y, maxWidth) {
-      ctx.font = `${size}px "SF Collegiate"`;
+    function drawText(
+      text,
+      fontFamily,
+      size,
+      y,
+      maxWidth
+    ) {
+
+      ctx.font = `${size}px "${fontFamily}"`;
+
       ctx.fillStyle = GOLD;
+
       ctx.textAlign = "center";
+
       ctx.textBaseline = "top";
 
-      while (ctx.measureText(text).width > maxWidth && size > 100) {
+      while (
+        ctx.measureText(text).width > maxWidth &&
+        size > 100
+      ) {
+
         size -= 20;
-        ctx.font = `${size}px "SF Collegiate"`;
+
+        ctx.font = `${size}px "${fontFamily}"`;
       }
 
-      ctx.fillText(text, canvas.width / 2, y);
+      ctx.fillText(
+        text,
+        canvas.width / 2,
+        y
+      );
     }
 
     function updateNumberLock() {
+
       if (isCricketerInput.checked) {
+
         numberInput.disabled = false;
+
       } else {
+
         numberInput.value = "00";
+
         numberInput.disabled = true;
       }
 
@@ -136,34 +182,75 @@
     }
 
     async function drawDesign() {
+
       await loadFonts();
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
 
-      const name = (nameInput.value || "DAN").toUpperCase();
+      const name =
+        (nameInput.value || "SAMANTHA")
+        .toUpperCase();
 
-      const number = isCricketerInput.checked
-        ? (numberInput.value || "00")
-        : "00";
+      const number =
+        isCricketerInput.checked
+          ? (numberInput.value || "00")
+          : "00";
 
-      drawText(name, 900, 650, 8500);
-      drawText(number, 2300, 2300, 8500);
+      drawText(
+        name,
+        "High School USA Sans",
+        1000,
+        650,
+        9000
+      );
+
+      drawText(
+        number,
+        "SF Collegiate",
+        2300,
+        2300,
+        9000
+      );
     }
 
-    nameInput.addEventListener("input", drawDesign);
-    numberInput.addEventListener("input", drawDesign);
-    isCricketerInput.addEventListener("change", updateNumberLock);
+    nameInput.addEventListener(
+      "input",
+      drawDesign
+    );
+
+    numberInput.addEventListener(
+      "input",
+      drawDesign
+    );
+
+    isCricketerInput.addEventListener(
+      "change",
+      updateNumberLock
+    );
 
     async function downloadPNG() {
+
       await drawDesign();
 
-      const link = document.createElement("a");
-      link.download = "t-shirt-back-image.png";
-      link.href = canvas.toDataURL("image/png");
+      const link =
+        document.createElement("a");
+
+      link.download =
+        "t-shirt-back-image.png";
+
+      link.href =
+        canvas.toDataURL("image/png");
+
       link.click();
     }
 
     updateNumberLock();
+
   </script>
 
 </body>
