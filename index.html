@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>T-Shirt Generator</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+
+    .shirt {
+      width: 500px;
+      height: 600px;
+      margin: 20px auto;
+      background: white;
+      border: 2px solid black;
+      position: relative;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    .name {
+      position: absolute;
+      top: 120px;
+      width: 100%;
+      text-align: center;
+      font-size: 48px;
+      font-weight: bold;
+      letter-spacing: 4px;
+    }
+
+    .number {
+      position: absolute;
+      top: 250px;
+      width: 100%;
+      text-align: center;
+      font-size: 180px;
+      font-weight: bold;
+    }
+
+    input {
+      padding: 10px;
+      margin: 10px;
+      font-size: 18px;
+      width: 220px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      cursor: pointer;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Create Your Shirt</h1>
+
+  <input
+    type="text"
+    id="playerName"
+    placeholder="Player Name"
+    maxlength="12"
+  >
+
+  <input
+    type="text"
+    id="playerNumber"
+    placeholder="Number"
+    maxlength="2"
+  >
+
+  <div class="shirt" id="shirt">
+    <div class="name" id="namePreview">BUDDHI</div>
+    <div class="number" id="numberPreview">09</div>
+  </div>
+
+  <button onclick="downloadPDF()">
+    Download PDF
+  </button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    const nameInput = document.getElementById("playerName");
+    const numberInput = document.getElementById("playerNumber");
+
+    nameInput.addEventListener("input", () => {
+      document.getElementById("namePreview").innerText =
+        nameInput.value || "BUDDHI";
+    });
+
+    numberInput.addEventListener("input", () => {
+      document.getElementById("numberPreview").innerText =
+        numberInput.value || "09";
+    });
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+
+      const shirt = document.getElementById("shirt");
+
+      const canvas = await html2canvas(shirt);
+
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [500, 600]
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, 500, 600);
+
+      pdf.save("tshirt-design.pdf");
+    }
+  </script>
+
+</body>
+</html>
