@@ -65,7 +65,7 @@
 
   <br />
 
-  <canvas id="previewCanvas" width="3000" height="2200"></canvas>
+  <canvas id="previewCanvas" width="5000" height="3000"></canvas>
 
   <script>
     const canvas = document.getElementById("previewCanvas");
@@ -76,27 +76,43 @@
 
     const GOLD = "#C8A24A";
 
+    const PT_TO_PX = 96 / 72;
+
+    const nameSizePx = 90 * PT_TO_PX;
+    const numberSizePx = 330 * PT_TO_PX;
+
     async function loadFonts() {
-      await document.fonts.load("90pt 'High School USA Sans'");
-      await document.fonts.load("330pt 'SF Collegiate'");
+      await document.fonts.load(`${nameSizePx}px "High School USA Sans"`);
+      await document.fonts.load(`${numberSizePx}px "SF Collegiate"`);
       await document.fonts.ready;
     }
 
-    function drawCenteredText(text, font, y, maxWidth) {
-      ctx.font = font;
+    function drawAccurateText(text, fontFamily, fontSizePx, topY, maxWidth) {
+      ctx.font = `${fontSizePx}px "${fontFamily}"`;
       ctx.fillStyle = GOLD;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
 
-      let size = parseInt(font);
-      let family = font.substring(font.indexOf(" ") + 1);
+      let size = fontSizePx;
+      let metrics = ctx.measureText(text);
+      let actualWidth =
+        metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
 
-      while (ctx.measureText(text).width > maxWidth && size > 20) {
+      while (actualWidth > maxWidth && size > 40) {
         size -= 5;
-        ctx.font = size + "pt " + family;
+        ctx.font = `${size}px "${fontFamily}"`;
+        metrics = ctx.measureText(text);
+        actualWidth =
+          metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
       }
 
-      ctx.fillText(text, canvas.width / 2, y);
+      const x =
+        (canvas.width - actualWidth) / 2 + metrics.actualBoundingBoxLeft;
+
+      const baselineY =
+        topY + metrics.actualBoundingBoxAscent;
+
+      ctx.fillText(text, x, baselineY);
     }
 
     async function drawDesign() {
@@ -107,18 +123,20 @@
       const name = (nameInput.value || "BUDDHI").toUpperCase();
       const number = numberInput.value || "09";
 
-      drawCenteredText(
+      drawAccurateText(
         name,
-        "90pt 'High School USA Sans'",
-        180,
-        2700
+        "High School USA Sans",
+        nameSizePx,
+        250,
+        4200
       );
 
-      drawCenteredText(
+      drawAccurateText(
         number,
-        "330pt 'SF Collegiate'",
-        430,
-        2700
+        "SF Collegiate",
+        numberSizePx,
+        520,
+        4200
       );
     }
 
@@ -132,16 +150,14 @@
       let sizeMB = dataUrl.length * 0.75 / 1024 / 1024;
 
       if (sizeMB > 15) {
-        alert("File is over 15MB. Downloading optimized version.");
+        const smallerCanvas = document.createElement("canvas");
+        smallerCanvas.width = 3500;
+        smallerCanvas.height = 2100;
 
-        const smallCanvas = document.createElement("canvas");
-        smallCanvas.width = 2400;
-        smallCanvas.height = 1760;
+        const smallerCtx = smallerCanvas.getContext("2d");
+        smallerCtx.drawImage(canvas, 0, 0, smallerCanvas.width, smallerCanvas.height);
 
-        const smallCtx = smallCanvas.getContext("2d");
-        smallCtx.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
-
-        dataUrl = smallCanvas.toDataURL("image/png");
+        dataUrl = smallerCanvas.toDataURL("image/png");
       }
 
       const link = document.createElement("a");
