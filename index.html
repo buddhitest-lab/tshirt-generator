@@ -7,17 +7,16 @@
   <title>Jyväskylä Titans T-Shirt Generator</title>
 
   <style>
-
     @font-face {
       font-family: "SF Collegiate";
-      src: url("fonts/SfCollegiate-K0Xe.ttf?v=11") format("truetype");
+      src: url("fonts/SfCollegiate-K0Xe.ttf?v=13") format("truetype");
       font-weight: normal;
       font-style: normal;
     }
 
     @font-face {
       font-family: "High School USA Sans";
-      src: url("fonts/HighSchoolUsaSans-52vx.ttf?v=11") format("truetype");
+      src: url("fonts/HighSchoolUsaSans-52vx.ttf?v=13") format("truetype");
       font-weight: normal;
       font-style: normal;
     }
@@ -36,7 +35,7 @@
     }
 
     .instructions {
-      max-width: 900px;
+      max-width: 950px;
       margin: 0 auto 30px auto;
       background: white;
       padding: 25px;
@@ -46,13 +45,36 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
 
-    .instructions h2 {
+    .instructions h2,
+    .instructions h3 {
       margin-top: 0;
     }
 
     .instructions a {
       color: #0066cc;
       word-break: break-word;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+
+    th,
+    td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #f0f0f0;
+    }
+
+    .reserved-number {
+      font-weight: bold;
+      color: #b00020;
     }
 
     .download-links {
@@ -63,7 +85,7 @@
 
     .download-links a {
       display: inline-block;
-      margin: 10px;
+      margin: 10px 0;
       padding: 12px 18px;
       background: black;
       color: white;
@@ -89,6 +111,13 @@
       font-size: 16px;
     }
 
+    .error-message {
+      color: #b00020;
+      font-weight: bold;
+      margin-top: 12px;
+      display: none;
+    }
+
     button {
       padding: 14px 28px;
       font-size: 18px;
@@ -98,6 +127,11 @@
       border-radius: 8px;
       cursor: pointer;
       margin-top: 18px;
+    }
+
+    button:disabled {
+      background: #999;
+      cursor: not-allowed;
     }
 
     .preview-box {
@@ -113,7 +147,6 @@
       display: block;
       background: transparent;
     }
-
   </style>
 </head>
 
@@ -123,11 +156,40 @@
 
   <div class="instructions">
 
-    <h2>How to Order Your T-Shirt</h2>
+    <h2>Jyväskylä Cricket Trophy 2026 T-Shirt Instructions</h2>
+
+    <p>
+      Hi everyone! We are planning to do t-shirts for the
+      <strong>Jyväskylä Cricket Trophy 2026</strong> on
+      <strong>June 6th</strong>.
+    </p>
+
+    <h3>Generate Your Design</h3>
+
+    <p>
+      Use this page to create your custom back print graphic.
+    </p>
+
+    <h3>Reserved Player Numbers</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Reserved Numbers</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr id="reservedNumbers"></tr>
+      </tbody>
+    </table>
+
+    <h3>Temu Ordering Instructions</h3>
 
     <ol>
+
       <li>
-        Choose your preferred T-shirt:
+        Choose your preferred t-shirt:
         <ul>
           <li>
             Long sleeves navy blue:
@@ -135,7 +197,8 @@
               https://share.temu.com/blCSuaVTnqB
             </a>
             <br />
-            Product code: <strong>EL8147958</strong>
+            Product code:
+            <strong>EL8147958</strong>
           </li>
 
           <li>
@@ -144,47 +207,39 @@
               https://share.temu.com/bVPPJgSBfRB
             </a>
             <br />
-            Product code: <strong>AB4801072</strong>
+            Product code:
+            <strong>AB4801072</strong>
           </li>
         </ul>
       </li>
 
+      <li>Select the Navy Blue color option.</li>
+
+      <li>Select your t-shirt size.</li>
+
+      <li>Click Personalise.</li>
+
       <li>
-        Select the <strong>Navy Blue</strong> color option.
+        Upload the JT logo to image slot number 1.
       </li>
 
       <li>
-        Select your T-shirt size.
+        Upload t-shirt-back-image.png to image slot number 3.
       </li>
 
       <li>
-        Click the <strong>Personalise</strong> button on Temu.
+        Click Add to Cart.
       </li>
 
-      <li>
-        Upload the <strong>JT logo</strong> to image slot number <strong>1</strong>.
-      </li>
-
-      <li>
-        Upload the generated
-        <strong>t-shirt-back-image.png</strong>
-        to image slot number <strong>3</strong>.
-      </li>
-
-      <li>
-        Click <strong>Add to Cart</strong>.
-      </li>
-       <li>
-        Complete your order through Temu payment process.
-      </li>
     </ol>
+
+    <p>
+      Please order today or tomorrow to get the t-shirt before the game.
+    </p>
 
     <div class="download-links">
 
-      <a
-        href="assets/JT-logo.png"
-        download="JT-logo.png"
-      >
+      <a href="assets/JT-logo.png" download="JT-logo.png">
         Download JT Logo
       </a>
 
@@ -213,9 +268,13 @@
     I am a cricketer of the Jyväskylä Titans Cricket team
   </label>
 
+  <div id="errorMessage" class="error-message">
+    This number is already taken.
+  </div>
+
   <br />
 
-  <button onclick="downloadPNG()">
+  <button id="downloadButton" onclick="downloadPNG()">
     Download Ultra HD Transparent PNG
   </button>
 
@@ -224,6 +283,9 @@
   </div>
 
   <script>
+
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbw-Tdk3ShTUtVIt2_YXWmymursxGVkp92tBUN8IXgFfNZVSgMSdSnZOGorGqob9Y9XR/exec";
 
     const canvas =
       document.getElementById("previewCanvas");
@@ -240,7 +302,50 @@
     const isCricketerInput =
       document.getElementById("isCricketer");
 
+    const errorMessage =
+      document.getElementById("errorMessage");
+
+    const downloadButton =
+      document.getElementById("downloadButton");
+
     const GOLD = "#C8A24A";
+
+    let reservedNumbers = [];
+
+    async function loadReservedNumbers() {
+
+      const response =
+        await fetch(
+          API_URL + "?action=getNumbers"
+        );
+
+      reservedNumbers =
+        await response.json();
+
+      updateReservedTable();
+    }
+
+    function updateReservedTable() {
+
+      const table =
+        document.getElementById("reservedNumbers");
+
+      table.innerHTML = "";
+
+      reservedNumbers.forEach(number => {
+
+        const td =
+          document.createElement("td");
+
+        td.className =
+          "reserved-number";
+
+        td.innerText =
+          number;
+
+        table.appendChild(td);
+      });
+    }
 
     async function loadFonts() {
 
@@ -253,6 +358,61 @@
       );
 
       await document.fonts.ready;
+    }
+
+    function normalizeNumber(value) {
+
+      const digitsOnly =
+        value.replace(/\D/g, "")
+        .slice(0, 2);
+
+      return digitsOnly
+        .padStart(2, "0");
+    }
+
+    function validateNumber() {
+
+      if (!isCricketerInput.checked) {
+
+        errorMessage.style.display =
+          "none";
+
+        downloadButton.disabled =
+          false;
+
+        return true;
+      }
+
+      const selectedNumber =
+        normalizeNumber(
+          numberInput.value || "00"
+        );
+
+      if (
+        reservedNumbers.includes(
+          selectedNumber
+        )
+      ) {
+
+        errorMessage.innerText =
+          `Number ${selectedNumber} is already taken.`;
+
+        errorMessage.style.display =
+          "block";
+
+        downloadButton.disabled =
+          true;
+
+        return false;
+      }
+
+      errorMessage.style.display =
+        "none";
+
+      downloadButton.disabled =
+        false;
+
+      return true;
     }
 
     function drawName(
@@ -335,14 +495,19 @@
         isCricketerInput.checked
       ) {
 
-        numberInput.disabled = false;
+        numberInput.disabled =
+          false;
 
       } else {
 
-        numberInput.value = "00";
+        numberInput.value =
+          "00";
 
-        numberInput.disabled = true;
+        numberInput.disabled =
+          true;
       }
+
+      validateNumber();
 
       drawDesign();
     }
@@ -350,6 +515,11 @@
     async function drawDesign() {
 
       await loadFonts();
+
+      numberInput.value =
+        numberInput.value
+        .replace(/\D/g, "")
+        .slice(0, 2);
 
       ctx.clearRect(
         0,
@@ -364,7 +534,9 @@
 
       const number =
         isCricketerInput.checked
-          ? (numberInput.value || "00")
+          ? normalizeNumber(
+              numberInput.value || "00"
+            )
           : "00";
 
       drawName(
@@ -380,6 +552,8 @@
         2300,
         9000
       );
+
+      validateNumber();
     }
 
     nameInput.addEventListener(
@@ -399,7 +573,52 @@
 
     async function downloadPNG() {
 
+      if (!validateNumber()) {
+        return;
+      }
+
       await drawDesign();
+
+      const name =
+        (nameInput.value || "DAN")
+        .toUpperCase();
+
+      const number =
+        isCricketerInput.checked
+          ? normalizeNumber(
+              numberInput.value || "00"
+            )
+          : "00";
+
+      if (number !== "00") {
+
+        const response =
+          await fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+            body: JSON.stringify({
+              name,
+              number
+            })
+          });
+
+        const result =
+          await response.json();
+
+        if (!result.success) {
+
+          alert(
+            result.message
+          );
+
+          await loadReservedNumbers();
+
+          return;
+        }
+      }
 
       const link =
         document.createElement("a");
@@ -411,9 +630,18 @@
         canvas.toDataURL("image/png");
 
       link.click();
+
+      await loadReservedNumbers();
     }
 
-    updateNumberLock();
+    async function init() {
+
+      await loadReservedNumbers();
+
+      updateNumberLock();
+    }
+
+    init();
 
   </script>
 
