@@ -3,19 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <title>Jyväskylä Titans T-Shirt Generator</title>
 
   <style>
-
     @font-face {
       font-family: "SF Collegiate";
-      src: url("fonts/SfCollegiate-K0Xe.ttf") format("truetype");
+      src: url("fonts/SfCollegiate-K0Xe.ttf?v=14") format("truetype");
     }
 
     @font-face {
       font-family: "High School USA Sans";
-      src: url("fonts/HighSchoolUsaSans-52vx.ttf") format("truetype");
+      src: url("fonts/HighSchoolUsaSans-52vx.ttf?v=14") format("truetype");
     }
 
     body {
@@ -25,10 +23,6 @@
       font-family: Arial, sans-serif;
       text-align: center;
       color: #222;
-    }
-
-    h1 {
-      margin-bottom: 25px;
     }
 
     .instructions {
@@ -42,10 +36,6 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     }
 
-    .instructions h2 {
-      margin-top: 0;
-    }
-
     .instructions a {
       color: #0066cc;
       word-break: break-word;
@@ -57,8 +47,7 @@
       margin: 15px 0 25px 0;
     }
 
-    th,
-    td {
+    th, td {
       border: 1px solid #ccc;
       padding: 10px;
       text-align: center;
@@ -138,7 +127,6 @@
       display: block;
       background: transparent;
     }
-
   </style>
 </head>
 
@@ -147,20 +135,15 @@
   <h1>Jyväskylä Titans T-Shirt Generator</h1>
 
   <div class="instructions">
-
     <h2>Jyväskylä Cricket Trophy 2026 T-Shirt Instructions</h2>
 
     <p>
-      Hi everyone! We are planning to do a t-shirts to wear for the
-      <strong>Jyväskylä Cricket Trophy 2026</strong>
-      on <strong>June 6th</strong>.
+      Hi everyone! We are planning to do t-shirts to wear for the
+      <strong>Jyväskylä Cricket Trophy 2026</strong> on <strong>June 6th</strong>.
     </p>
 
     <h3>Generate Your Design</h3>
-
-    <p>
-      Use this page to create your custom back print graphic.
-    </p>
+    <p>Use this page to create your custom back print graphic.</p>
 
     <h3>Reserved Player Numbers</h3>
 
@@ -170,7 +153,6 @@
           <th>Reserved Numbers</th>
         </tr>
       </thead>
-
       <tbody>
         <tr id="reservedNumbers"></tr>
       </tbody>
@@ -179,19 +161,16 @@
     <h3>Temu Ordering Instructions</h3>
 
     <ol>
-
       <li>
         Choose your preferred t-shirt:
         <ul>
-
           <li>
             Long sleeves navy blue:
             <a href="https://share.temu.com/blCSuaVTnqB" target="_blank">
               https://share.temu.com/blCSuaVTnqB
             </a>
             <br />
-            Product code:
-            <strong>EL8147958</strong>
+            Product code: <strong>EL8147958</strong>
           </li>
 
           <li>
@@ -200,10 +179,8 @@
               https://share.temu.com/bVPPJgSBfRB
             </a>
             <br />
-            Product code:
-            <strong>AB4801072</strong>
+            Product code: <strong>AB4801072</strong>
           </li>
-
         </ul>
       </li>
 
@@ -211,23 +188,17 @@
       <li>Select your t-shirt size.</li>
       <li>Click Personalise.</li>
       <li>Upload the JT logo to image slot number 1.</li>
-      <li>Upload t-shirt-back-image.png to image slot number 3.</li>
+      <li>Upload <strong>t-shirt-back-image.png</strong> to image slot number 3.</li>
       <li>Click Add to Cart.</li>
-
     </ol>
 
-    <p>
-      Please order today or tomorrow to get the t-shirt before the game.
-    </p>
+    <p>Please order today or tomorrow to get the t-shirt before the game.</p>
 
     <div class="download-links">
-
       <a href="assets/JT-logo.png" download="JT-logo.png">
         Download JT Logo
       </a>
-
     </div>
-
   </div>
 
   <input
@@ -251,388 +222,231 @@
     I am a cricketer of the Jyväskylä Titans Cricket team
   </label>
 
-  <div
-    id="errorMessage"
-    class="error-message"
-  >
+  <div id="errorMessage" class="error-message">
     Number already taken
   </div>
 
   <br />
 
-  <button
-    id="downloadButton"
-    onclick="downloadPNG()"
-  >
+  <button id="downloadButton" onclick="downloadPNG()">
     Download Ultra HD Transparent PNG
   </button>
 
   <div class="preview-box">
-
-    <canvas
-      id="previewCanvas"
-      width="12000"
-      height="9000"
-    ></canvas>
-
+    <canvas id="previewCanvas" width="12000" height="9000"></canvas>
   </div>
 
   <script>
-
     const API_URL =
       "https://script.google.com/macros/s/AKfycbw-Tdk3ShTUtVIt2_YXWmymursxGVkp92tBUN8IXgFfNZVSgMSdSnZOGorGqob9Y9XR/exec";
 
     const GOLD = "#C8A24A";
 
-    const canvas =
-      document.getElementById("previewCanvas");
+    const canvas = document.getElementById("previewCanvas");
+    const ctx = canvas.getContext("2d");
 
-    const ctx =
-      canvas.getContext("2d");
-
-    const nameInput =
-      document.getElementById("playerName");
-
-    const numberInput =
-      document.getElementById("playerNumber");
-
-    const isCricketerInput =
-      document.getElementById("isCricketer");
-
-    const errorMessage =
-      document.getElementById("errorMessage");
-
-    const downloadButton =
-      document.getElementById("downloadButton");
+    const nameInput = document.getElementById("playerName");
+    const numberInput = document.getElementById("playerNumber");
+    const isCricketerInput = document.getElementById("isCricketer");
+    const errorMessage = document.getElementById("errorMessage");
+    const downloadButton = document.getElementById("downloadButton");
 
     let reservedNumbers = [];
 
+    function jsonp(url) {
+      return new Promise((resolve, reject) => {
+        const callbackName =
+          "jsonp_callback_" + Math.round(100000 * Math.random());
+
+        window[callbackName] = function(data) {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          resolve(data);
+        };
+
+        const script = document.createElement("script");
+
+        script.src =
+          url + (url.includes("?") ? "&" : "?") + "callback=" + callbackName;
+
+        script.onerror = function() {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          reject(new Error("JSONP request failed"));
+        };
+
+        document.body.appendChild(script);
+      });
+    }
+
     async function loadReservedNumbers() {
-
-      const response =
-        await fetch(
-          API_URL + "?action=getNumbers"
-        );
-
-      reservedNumbers =
-        await response.json();
-
-      updateReservedTable();
+      try {
+        reservedNumbers = await jsonp(API_URL + "?action=getNumbers");
+        updateReservedTable();
+        validateNumber();
+      } catch (error) {
+        console.error(error);
+        errorMessage.innerText =
+          "Could not load reserved numbers. Please refresh the page.";
+        errorMessage.style.display = "block";
+      }
     }
 
     function updateReservedTable() {
-
-      const row =
-        document.getElementById(
-          "reservedNumbers"
-        );
-
+      const row = document.getElementById("reservedNumbers");
       row.innerHTML = "";
 
+      if (!reservedNumbers || reservedNumbers.length === 0) {
+        const td = document.createElement("td");
+        td.innerText = "No reserved numbers loaded";
+        row.appendChild(td);
+        return;
+      }
+
       reservedNumbers.forEach(number => {
-
-        const td =
-          document.createElement("td");
-
-        td.className =
-          "reserved-number";
-
-        td.innerText =
-          number;
-
+        const td = document.createElement("td");
+        td.className = "reserved-number";
+        td.innerText = number;
         row.appendChild(td);
       });
     }
 
     async function loadFonts() {
-
-      await document.fonts.load(
-        '1000px "High School USA Sans"'
-      );
-
-      await document.fonts.load(
-        '2400px "SF Collegiate"'
-      );
-
+      await document.fonts.load('1000px "High School USA Sans"');
+      await document.fonts.load('2400px "SF Collegiate"');
       await document.fonts.ready;
     }
 
     function normalizeNumber(value) {
-
-      const digits =
-        value.replace(/\D/g, "")
-        .slice(0, 2);
-
+      const digits = value.replace(/\D/g, "").slice(0, 2);
       return digits.padStart(2, "0");
     }
 
     function validateNumber() {
-
-      if (
-        !isCricketerInput.checked
-      ) {
-
-        errorMessage.style.display =
-          "none";
-
-        downloadButton.disabled =
-          false;
-
+      if (!isCricketerInput.checked) {
+        errorMessage.style.display = "none";
+        downloadButton.disabled = false;
         return true;
       }
 
-      const selectedNumber =
-        normalizeNumber(
-          numberInput.value || "00"
-        );
+      const selectedNumber = normalizeNumber(numberInput.value || "00");
 
-      if (
-        reservedNumbers.includes(
-          selectedNumber
-        )
-      ) {
-
-        errorMessage.innerText =
-          `Number ${selectedNumber} is already taken`;
-
-        errorMessage.style.display =
-          "block";
-
-        downloadButton.disabled =
-          true;
-
+      if (reservedNumbers.includes(selectedNumber)) {
+        errorMessage.innerText = `Number ${selectedNumber} is already taken`;
+        errorMessage.style.display = "block";
+        downloadButton.disabled = true;
         return false;
       }
 
-      errorMessage.style.display =
-        "none";
-
-      downloadButton.disabled =
-        false;
-
+      errorMessage.style.display = "none";
+      downloadButton.disabled = false;
       return true;
     }
 
     function updateNumberLock() {
-
-      if (
-        isCricketerInput.checked
-      ) {
-
-        numberInput.disabled =
-          false;
-
+      if (isCricketerInput.checked) {
+        numberInput.disabled = false;
       } else {
-
-        numberInput.value =
-          "00";
-
-        numberInput.disabled =
-          true;
+        numberInput.value = "00";
+        numberInput.disabled = true;
       }
 
       drawDesign();
     }
 
-    function drawName(
-      text,
-      size,
-      y,
-      maxWidth
-    ) {
+    function drawName(text, size, y, maxWidth) {
+      ctx.font = `${size}px "High School USA Sans"`;
+      ctx.fillStyle = GOLD;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
 
-      ctx.font =
-        `${size}px "High School USA Sans"`;
-
-      ctx.fillStyle =
-        GOLD;
-
-      ctx.textAlign =
-        "center";
-
-      ctx.textBaseline =
-        "top";
-
-      while (
-        ctx.measureText(text).width >
-          maxWidth &&
-        size > 100
-      ) {
-
+      while (ctx.measureText(text).width > maxWidth && size > 100) {
         size -= 20;
-
-        ctx.font =
-          `${size}px "High School USA Sans"`;
+        ctx.font = `${size}px "High School USA Sans"`;
       }
 
-      ctx.fillText(
-        text,
-        canvas.width / 2,
-        y
-      );
+      ctx.fillText(text, canvas.width / 2, y);
     }
 
-    function drawNumber(
-      text,
-      size,
-      y,
-      maxWidth
-    ) {
+    function drawNumber(text, size, y, maxWidth) {
+      ctx.font = `${size}px "SF Collegiate"`;
+      ctx.fillStyle = GOLD;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
 
-      ctx.font =
-        `${size}px "SF Collegiate"`;
-
-      ctx.fillStyle =
-        GOLD;
-
-      ctx.textAlign =
-        "center";
-
-      ctx.textBaseline =
-        "top";
-
-      while (
-        ctx.measureText(text).width >
-          maxWidth &&
-        size > 100
-      ) {
-
+      while (ctx.measureText(text).width > maxWidth && size > 100) {
         size -= 20;
-
-        ctx.font =
-          `${size}px "SF Collegiate"`;
+        ctx.font = `${size}px "SF Collegiate"`;
       }
 
-      ctx.fillText(
-        text,
-        canvas.width / 2,
-        y
-      );
+      ctx.fillText(text, canvas.width / 2, y);
     }
 
     async function drawDesign() {
-
       await loadFonts();
 
-      ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const name =
-        (nameInput.value || "DAN")
-        .toUpperCase();
+      const name = (nameInput.value || "DAN").toUpperCase();
 
-      const number =
-        isCricketerInput.checked
-          ? normalizeNumber(
-              numberInput.value || "00"
-            )
-          : "00";
+      const number = isCricketerInput.checked
+        ? normalizeNumber(numberInput.value || "00")
+        : "00";
 
-      drawName(
-        name,
-        1000,
-        700,
-        9000
-      );
-
-      drawNumber(
-        number,
-        2400,
-        2400,
-        9000
-      );
+      drawName(name, 1000, 700, 9000);
+      drawNumber(number, 2400, 2400, 9000);
 
       validateNumber();
     }
 
-    nameInput.addEventListener(
-      "input",
-      drawDesign
-    );
-
-    numberInput.addEventListener(
-      "input",
-      drawDesign
-    );
-
-    isCricketerInput.addEventListener(
-      "change",
-      updateNumberLock
-    );
+    nameInput.addEventListener("input", drawDesign);
+    numberInput.addEventListener("input", drawDesign);
+    isCricketerInput.addEventListener("change", updateNumberLock);
 
     async function downloadPNG() {
-
       if (!validateNumber()) {
         return;
       }
 
       await drawDesign();
 
-      const name =
-        (nameInput.value || "DAN")
-        .toUpperCase();
+      const name = (nameInput.value || "DAN").toUpperCase();
 
-      const number =
-        isCricketerInput.checked
-          ? normalizeNumber(
-              numberInput.value || "00"
-            )
-          : "00";
+      const number = isCricketerInput.checked
+        ? normalizeNumber(numberInput.value || "00")
+        : "00";
 
       if (number !== "00") {
-
-        const response =
-          await fetch(
-            API_URL +
-            "?action=reserveNumber" +
-            "&name=" +
-            encodeURIComponent(name) +
-            "&number=" +
-            encodeURIComponent(number)
-          );
-
-        const result =
-          await response.json();
+        const result = await jsonp(
+          API_URL +
+          "?action=reserveNumber" +
+          "&name=" +
+          encodeURIComponent(name) +
+          "&number=" +
+          encodeURIComponent(number)
+        );
 
         if (!result.success) {
-
-          alert(result.message);
-
+          alert(result.message || "Number already taken");
           await loadReservedNumbers();
-
           return;
         }
       }
 
-      const link =
-        document.createElement("a");
-
-      link.download =
-        "t-shirt-back-image.png";
-
-      link.href =
-        canvas.toDataURL(
-          "image/png"
-        );
-
+      const link = document.createElement("a");
+      link.download = "t-shirt-back-image.png";
+      link.href = canvas.toDataURL("image/png");
       link.click();
 
       await loadReservedNumbers();
     }
 
     async function init() {
-
       await loadReservedNumbers();
-
       updateNumberLock();
     }
 
     init();
-
   </script>
 
 </body>
